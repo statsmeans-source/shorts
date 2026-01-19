@@ -29,7 +29,6 @@ jobs:
     - name: Install Python dependencies
       run: |
         pip install -r requirements.txt
-        pip install moviepy==1.0.3
 
     - name: Setup Environment and Secrets
       env:
