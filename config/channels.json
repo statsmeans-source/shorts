@@ -80,8 +80,8 @@
                 "trending"
             ],
             "description_template": "🔥 {script_summary}\n\n💪 This video will change your mindset forever!\n\n� SUBSCRIBE for daily motivation that will transform your life!\n\n⚡ Turn on notifications to never miss a video!\n\n#Shorts #Motivation #Success #Mindset #Inspiration #SelfImprovement #PersonalDevelopment #MotivationalSpeech #DailyMotivation #SuccessTips #GrowthMindset #Entrepreneur #Hustle #Grind #NeverGiveUp #BelieveInYourself #DreamBig #TakeAction #PositiveVibes #LifeChanging",
-            "min_upload_interval_minutes": 30,
-            "daily_video_limit": 6
+            "min_upload_interval_minutes": 1,
+            "daily_video_limit": 50
         }
     ]
 }
