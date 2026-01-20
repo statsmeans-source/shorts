@@ -140,10 +140,14 @@ def combine_videos(
     subclipped_items = []
     video_duration = 0
     for video_path in video_paths:
-        clip = VideoFileClip(video_path)
-        clip_duration = clip.duration
-        clip_w, clip_h = clip.size
-        close_clip(clip)
+        try:
+            clip = VideoFileClip(video_path)
+            clip_duration = clip.duration
+            clip_w, clip_h = clip.size
+            close_clip(clip)
+        except Exception as e:
+            logger.warning(f"skipping corrupted or invalid video file: {video_path} => {str(e)}")
+            continue
         
         start_time = 0
 
@@ -195,17 +199,17 @@ def combine_videos(
                     
             shuffle_side = random.choice(["left", "right", "top", "bottom"])
             # Handle None transition mode - default to no transition
-            if video_transition_mode is None or video_transition_mode.value == VideoTransitionMode.none.value:
+            if video_transition_mode is None or video_transition_mode == VideoTransitionMode.none:
                 clip = clip
-            elif video_transition_mode.value == VideoTransitionMode.fade_in.value:
+            elif video_transition_mode == VideoTransitionMode.fade_in:
                 clip = video_effects.fadein_transition(clip, 1)
-            elif video_transition_mode.value == VideoTransitionMode.fade_out.value:
+            elif video_transition_mode == VideoTransitionMode.fade_out:
                 clip = video_effects.fadeout_transition(clip, 1)
-            elif video_transition_mode.value == VideoTransitionMode.slide_in.value:
+            elif video_transition_mode == VideoTransitionMode.slide_in:
                 clip = video_effects.slidein_transition(clip, 1, shuffle_side)
-            elif video_transition_mode.value == VideoTransitionMode.slide_out.value:
+            elif video_transition_mode == VideoTransitionMode.slide_out:
                 clip = video_effects.slideout_transition(clip, 1, shuffle_side)
-            elif video_transition_mode.value == VideoTransitionMode.shuffle.value:
+            elif video_transition_mode == VideoTransitionMode.shuffle:
                 transition_funcs = [
                     lambda c: video_effects.fadein_transition(c, 1),
                     lambda c: video_effects.fadeout_transition(c, 1),

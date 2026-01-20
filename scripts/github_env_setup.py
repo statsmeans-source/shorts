@@ -15,15 +15,27 @@ def setup_environment():
     credentials_dir = root_dir / "credentials"
     credentials_dir.mkdir(exist_ok=True)
     
+    # Get channel name from environment (defaults to movies_en for backward compatibility)
+    channel_name = os.environ.get("CHANNEL_NAME", "movies_en")
+    print(f"Setting up for channel: {channel_name}")
+    
     # 1. Setup config.toml
     config_file = root_dir / "config.toml"
+    
+    # Determine video source based on available API keys
+    pexels_key = os.environ.get("PEXELS_API_KEY", "")
+    pixabay_key = os.environ.get("PIXABAY_API_KEY", "")
+    
+    # Prefer Pixabay for copyright-free content
+    video_source = "pixabay" if pixabay_key else "pexels"
     
     # Create default config structure
     config_data = {
         "app": {
             "llm_provider": "pollinations",
-            "pexels_api_keys": [os.environ.get("PEXELS_API_KEY", "")],
-            "video_source": "pexels",
+            "pexels_api_keys": [pexels_key] if pexels_key else [],
+            "pixabay_api_keys": [pixabay_key] if pixabay_key else [],
+            "video_source": video_source,
             "log_level": "INFO"
         },
         "ui": {
@@ -33,28 +45,20 @@ def setup_environment():
     
     with open(config_file, "w") as f:
         toml.dump(config_data, f)
-    print(f"Created {config_file}")
+    print(f"Created {config_file} with video_source: {video_source}")
     
-    # 2. Setup YouTube Credentials
-    # Users should put the content of their client_secret.json into CLIENT_SECRET_JSON secret
+    # 2. Setup YouTube Credentials for the specific channel
     client_secret_content = os.environ.get("CLIENT_SECRET_JSON")
     if client_secret_content:
-        # Save for all configured channels (assuming logic handles names)
-        # For simplicity, we save as a specific name that matches the channel
-        # We need to know the channel name. Let's assume passed via env or hardcoded logic
-        # Save as movies_en_client_secret.json (since channels.json points to movies_en.json, 
-        # but let's stick to the convention or what the file actually is.
-        # The channels.json says "credentials_file": "movies_en.json".
-        # So we should save it as credentials/movies_en.json
-        target_file = credentials_dir / "movies_en.json"
+        target_file = credentials_dir / f"{channel_name}_client_secret.json"
         with open(target_file, "w") as f:
             f.write(client_secret_content)
         print(f"Created {target_file}")
         
-    # Users should put the content of their token.json into TOKEN_JSON secret
+    # Setup token for the specific channel
     token_content = os.environ.get("TOKEN_JSON")
     if token_content:
-        target_file = credentials_dir / "movies_en_token.json"
+        target_file = credentials_dir / f"{channel_name}_token.json"
         with open(target_file, "w") as f:
             f.write(token_content)
         print(f"Created {target_file}")

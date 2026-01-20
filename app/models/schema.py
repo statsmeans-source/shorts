@@ -19,7 +19,7 @@ class VideoConcatMode(str, Enum):
 
 
 class VideoTransitionMode(str, Enum):
-    none = None
+    none = "None"
     shuffle = "Shuffle"
     fade_in = "FadeIn"
     fade_out = "FadeOut"
@@ -74,7 +74,7 @@ class VideoParams(BaseModel):
     video_aspect: Optional[VideoAspect] = VideoAspect.portrait.value
     video_concat_mode: Optional[VideoConcatMode] = VideoConcatMode.random.value
     video_transition_mode: Optional[VideoTransitionMode] = None
-    video_clip_duration: Optional[int] = 5
+    video_clip_duration: Optional[int] = 4
     video_count: Optional[int] = 1
 
     video_source: Optional[str] = "pexels"

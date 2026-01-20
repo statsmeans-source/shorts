@@ -1,20 +1,57 @@
 import asyncio
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 from xml.sax.saxutils import unescape
 
 import edge_tts
 import requests
 from edge_tts import SubMaker, submaker
-from edge_tts.submaker import mktimestamp
 from loguru import logger
 from moviepy.video.tools import subtitles
 from moviepy.audio.io.AudioFileClip import AudioFileClip
 
 from app.config import config
 from app.utils import utils
+
+
+def mktimestamp(time_unit: float) -> str:
+    """Convert 100-nanosecond time units to SRT timestamp format (HH:MM:SS.mmm)"""
+    td = timedelta(microseconds=time_unit / 10)
+    hours, remainder = divmod(td.total_seconds(), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    milliseconds = int((seconds % 1) * 1000)
+    return f"{int(hours):02d}:{int(minutes):02d}:{int(seconds):02d}.{milliseconds:03d}"
+
+
+class SubMakerCompat:
+    """Compatibility wrapper for edge-tts 7.x SubMaker.
+    
+    Provides the old .subs and .offset interface on top of the new .cues format.
+    """
+    def __init__(self, sub_maker: SubMaker):
+        self._sub_maker = sub_maker
+    
+    @property
+    def cues(self):
+        return self._sub_maker.cues
+    
+    @property
+    def subs(self):
+        """Extract text from cues to match old API."""
+        return [cue.text for cue in self._sub_maker.cues]
+    
+    @property
+    def offset(self):
+        """Extract offset tuples from cues to match old API."""
+        return [(cue.offset, cue.offset + cue.duration) for cue in self._sub_maker.cues]
+    
+    def get_srt(self):
+        return self._sub_maker.get_srt()
+    
+    def feed(self, chunk):
+        return self._sub_maker.feed(chunk)
 
 
 def get_siliconflow_voices() -> list[str]:
@@ -1169,7 +1206,7 @@ def convert_rate_to_percent(rate: float) -> str:
 
 def azure_tts_v1(
     text: str, voice_name: str, voice_rate: float, voice_file: str
-) -> Union[SubMaker, None]:
+) -> Union[SubMakerCompat, None]:
     voice_name = parse_voice_name(voice_name)
     text = text.strip()
     rate_str = convert_rate_to_percent(voice_rate)
@@ -1185,18 +1222,21 @@ def azure_tts_v1(
                         if chunk["type"] == "audio":
                             file.write(chunk["data"])
                         elif chunk["type"] == "WordBoundary":
-                            sub_maker.create_sub(
-                                (chunk["offset"], chunk["duration"]), chunk["text"]
-                            )
+                            # edge-tts 7.x uses feed() instead of create_sub()
+                            sub_maker.feed(chunk)
                 return sub_maker
 
             sub_maker = asyncio.run(_do())
-            if not sub_maker or not sub_maker.subs:
-                logger.warning("failed, sub_maker is None or sub_maker.subs is None")
+            
+            # edge-tts 7.x may not return WordBoundary events
+            # Check if audio file was created successfully
+            if not os.path.exists(voice_file) or os.path.getsize(voice_file) == 0:
+                logger.warning("failed, audio file was not created")
                 continue
-
+            
             logger.info(f"completed, output file: {voice_file}")
-            return sub_maker
+            # Return compatibility wrapper for backward compatibility
+            return SubMakerCompat(sub_maker)
         except Exception as e:
             logger.error(f"failed, error: {str(e)}")
     return None
@@ -1661,13 +1701,15 @@ def create_subtitle(sub_maker: submaker.SubMaker, text: str, subtitle_file: str)
         logger.error(f"failed, error: {str(e)}")
 
 
-def _get_audio_duration_from_submaker(sub_maker: submaker.SubMaker):
+def _get_audio_duration_from_submaker(sub_maker: Union[submaker.SubMaker, SubMakerCompat]):
     """
     获取音频时长
     """
-    if not sub_maker.offset:
+    # Handle SubMakerCompat wrapper
+    offset = getattr(sub_maker, 'offset', [])
+    if not offset:
         return 0.0
-    return sub_maker.offset[-1][1] / 10000000
+    return offset[-1][1] / 10000000
 
 def _get_audio_duration_from_mp3(mp3_file: str) -> float:
     """
@@ -1685,13 +1727,13 @@ def _get_audio_duration_from_mp3(mp3_file: str) -> float:
         logger.error(f"Failed to get audio duration from MP3: {str(e)}")
         return 0.0
 
-def get_audio_duration( target: Union[str, submaker.SubMaker]) -> float:
+def get_audio_duration( target: Union[str, submaker.SubMaker, SubMakerCompat]) -> float:
     """
     获取音频时长
     如果是SubMaker对象，则从SubMaker中获取时长
     如果是MP3文件，则从MP3文件中获取时长
     """
-    if isinstance(target, submaker.SubMaker):
+    if isinstance(target, (submaker.SubMaker, SubMakerCompat)):
         return _get_audio_duration_from_submaker(target)
     elif isinstance(target, str) and target.endswith(".mp3"):
         return _get_audio_duration_from_mp3(target)

@@ -107,6 +107,11 @@ def generate_audio(task_id, params, video_script):
             )
             return None, None, None
         audio_duration = math.ceil(voice.get_audio_duration(sub_maker))
+        # Fallback to getting duration from audio file if sub_maker has no timing info
+        # (edge-tts 7.x doesn't provide word boundary timing)
+        if audio_duration == 0:
+            logger.warning("sub_maker has no timing info, getting duration from audio file")
+            audio_duration = math.ceil(voice.get_audio_duration(audio_file))
         if audio_duration == 0:
             sm.state.update_task(task_id, state=const.TASK_STATE_FAILED)
             logger.error("failed to get audio duration.")

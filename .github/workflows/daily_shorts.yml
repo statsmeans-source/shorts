@@ -2,15 +2,21 @@ name: Daily Shorts Automation
 
 on:
   schedule:
-    # Runs at 09:00, 15:00, 21:00 UTC (Adjust to your timezone)
+    # Runs every 15 minutes
     - cron: '*/15 * * * *'
   workflow_dispatch:  # Allows manual run from GitHub interface
+    inputs:
+      channel:
+        description: 'Channel to run (movies_en or motivation_en)'
+        required: false
+        default: 'all'
 
 jobs:
-  video-automation:
+  movies-channel:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    if: github.event.inputs.channel == 'all' || github.event.inputs.channel == 'movies_en' || github.event_name == 'schedule'
 
     steps:
     - name: Checkout repository
@@ -30,24 +36,70 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Setup Environment and Secrets
+    - name: Setup Environment for Movies Channel
       env:
         PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-        CLIENT_SECRET_JSON: ${{ secrets.CLIENT_SECRET_JSON }}
-        TOKEN_JSON: ${{ secrets.TOKEN_JSON }}
+        PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        CLIENT_SECRET_JSON: ${{ secrets.MOVIES_CLIENT_SECRET_JSON }}
+        TOKEN_JSON: ${{ secrets.MOVIES_TOKEN_JSON }}
+        CHANNEL_NAME: movies_en
       run: python scripts/github_env_setup.py
 
-    - name: Run Automation (One-shot)
+    - name: Run Movies Channel Automation
       env:
-        # Prevent interactive prompts
         PYTHONUNBUFFERED: "1"
       run: |
-        # Run specific channel. You can duplicate this step for other channels
         python automation.py --once --channel movies_en
 
     - name: Upload Logs (on failure)
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: automation-logs
+        name: movies-automation-logs
+        path: logs/
+
+  motivation-channel:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    if: github.event.inputs.channel == 'all' || github.event.inputs.channel == 'motivation_en' || github.event_name == 'schedule'
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg imagemagick
+
+    - name: Install Python dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Setup Environment for Motivation Channel
+      env:
+        PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        CLIENT_SECRET_JSON: ${{ secrets.MOTIVATION_CLIENT_SECRET_JSON }}
+        TOKEN_JSON: ${{ secrets.MOTIVATION_TOKEN_JSON }}
+        CHANNEL_NAME: motivation_en
+      run: python scripts/github_env_setup.py
+
+    - name: Run Motivation Channel Automation
+      env:
+        PYTHONUNBUFFERED: "1"
+      run: |
+        python automation.py --once --channel motivation_en
+
+    - name: Upload Logs (on failure)
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: motivation-automation-logs
         path: logs/
