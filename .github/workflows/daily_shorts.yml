@@ -3,7 +3,7 @@ name: Daily Shorts Automation
 on:
   schedule:
     # Runs at 09:00, 15:00, 21:00 UTC (Adjust to your timezone)
-    - cron: '*/30 * * * *'
+    - cron: '*/15 * * * *'
   workflow_dispatch:  # Allows manual run from GitHub interface
 
 jobs:
