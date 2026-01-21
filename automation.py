@@ -112,6 +112,7 @@ def generate_and_upload(
             video_clip_duration=video_params['video_clip_duration'],
             paragraph_number=video_params['paragraph_number'],
             subtitle_enabled=video_params['subtitle_enabled'],
+            subtitle_position=video_params.get('subtitle_position', 'top'),
             video_count=1,
         )
         
