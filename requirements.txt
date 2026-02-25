@@ -26,3 +26,4 @@ instagrapi>=2.1.2
 tiktok-uploader>=0.7.0
 pytz
 
+pynacl

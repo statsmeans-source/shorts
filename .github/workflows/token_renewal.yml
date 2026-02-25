@@ -8,6 +8,10 @@ on:
 jobs:
   renew:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      secrets: write  # Required to update TOKEN_JSON secret via API
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,7 +24,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install pynacl  # Required for GitHub secret encryption
 
+      # ---- motivation_en ----
       - name: Setup motivation_en Environment
         env:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
@@ -36,6 +42,22 @@ jobs:
           CHANNEL_NAME: motivation_en
         run: python scripts/renew_tokens.py
 
+      - name: Push motivation_en Token back to GitHub Secrets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          CHANNEL_NAME: motivation_en
+        run: |
+          TOKEN_FILE="credentials/motivation_en_token.json"
+          if [ -f "$TOKEN_FILE" ]; then
+            python3 scripts/update_github_secret.py \
+              --repo "${{ github.repository }}" \
+              --secret TOKEN_JSON \
+              --file "$TOKEN_FILE"
+          else
+            echo "⚠️ No token file found for motivation_en, skipping secret update."
+          fi
+
+      # ---- movies_en ----
       - name: Setup movies_en Environment
         env:
           GOOGLE_SHEETS_CREDENTIALS: ${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}
@@ -50,3 +72,18 @@ jobs:
           SHEET_ID: ${{ secrets.SHEET_ID }}
           CHANNEL_NAME: movies_en
         run: python scripts/renew_tokens.py
+
+      - name: Push movies_en Token back to GitHub Secrets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          CHANNEL_NAME: movies_en
+        run: |
+          TOKEN_FILE="credentials/movies_en_token.json"
+          if [ -f "$TOKEN_FILE" ]; then
+            python3 scripts/update_github_secret.py \
+              --repo "${{ github.repository }}" \
+              --secret TOKEN_JSON \
+              --file "$TOKEN_FILE"
+          else
+            echo "⚠️ No token file found for movies_en, skipping secret update."
+          fi
