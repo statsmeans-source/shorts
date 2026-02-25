@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-02-25T09:53:21.159879",
+  "last_updated": "2026-02-25T10:51:34.901856",
   "history": [
     {
       "channel": "movies_en",
@@ -685,6 +685,16 @@
       "channel": "motivation_en",
       "topic": "the 5am paradox: why the world's most successful people avoid early mornings",
       "timestamp": "2026-02-25T09:53:21.159687"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the '5 second rule' that rewires your brain for action (not what you think)",
+      "timestamp": "2026-02-25T10:45:11.311936"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the ancient roman secret to crushing procrastination (it's not willpower)",
+      "timestamp": "2026-02-25T10:51:34.901621"
     }
   ]
 }
