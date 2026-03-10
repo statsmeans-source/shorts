@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-10T00:07:05.097677",
+  "last_updated": "2026-03-10T04:58:44.673127",
   "history": [
     {
       "channel": "movies_en",
@@ -940,6 +940,16 @@
       "channel": "motivation_en",
       "topic": "the shocking truth about 'positive thinking' that no one tells you",
       "timestamp": "2026-03-10T00:07:05.097492"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the one sentence that stops overthinking instantly (ancient stoic hack)",
+      "timestamp": "2026-03-10T04:52:14.633998"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the stoic secret to instantly stop overthinking (it's not what you think)",
+      "timestamp": "2026-03-10T04:58:44.672862"
     }
   ]
 }
