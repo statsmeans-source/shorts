@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-17T02:55:08.193063",
+  "last_updated": "2026-03-17T05:11:04.858609",
   "history": [
     {
       "channel": "movies_en",
@@ -1080,6 +1080,16 @@
       "channel": "motivation_en",
       "topic": "the 2-minute rule that rewires your brain for discipline",
       "timestamp": "2026-03-17T02:55:08.192923"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the one question that shuts down overthinking instantly",
+      "timestamp": "2026-03-17T05:04:11.625124"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the stoic secret to instantly stop overthinking",
+      "timestamp": "2026-03-17T05:11:04.858331"
     }
   ]
 }
