@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-18T00:05:34.001128",
+  "last_updated": "2026-03-18T05:21:12.024066",
   "history": [
     {
       "channel": "movies_en",
@@ -1100,6 +1100,16 @@
       "channel": "motivation_en",
       "topic": "the stoic secret to instantly stop overthinking (it's not what you think)",
       "timestamp": "2026-03-18T00:05:34.000986"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the shocking truth about how your brain is wired for negativity (and how to rewire it)",
+      "timestamp": "2026-03-18T05:14:23.181487"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the '2-minute rule' that stops procrastination forever (scientifically proven)",
+      "timestamp": "2026-03-18T05:21:12.023861"
     }
   ]
 }
