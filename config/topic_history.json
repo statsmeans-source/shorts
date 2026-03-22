@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-03-22T00:05:12.376149",
+  "last_updated": "2026-03-22T05:21:56.289716",
   "history": [
     {
       "channel": "movies_en",
@@ -1180,6 +1180,16 @@
       "channel": "motivation_en",
       "topic": "the stoic secret to instantly stop overthinking (ancient mind hack)",
       "timestamp": "2026-03-22T00:05:12.375969"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the stoic secret to instantly stop overthinking (it's not what you think)",
+      "timestamp": "2026-03-22T05:16:04.239901"
+    },
+    {
+      "channel": "motivation_en",
+      "topic": "the 2-minute rule that rewires your brain for success",
+      "timestamp": "2026-03-22T05:21:56.289480"
     }
   ]
 }
